@@ -1,0 +1,12 @@
+{
+    "favicon": "%PUBLIC_URL%/favicons/intllect/favicon.ico",
+    "stylesheet": "/css/index.css",
+    "themeColor": "#000000",
+    "description": "Intellect Inbox provides daily personalized educational content to help you learn something new every day. We have a free version and a premium version with more features, and can seemlessly be used on desktop or mobile to learn something new every day.",
+    "ogImage": "/home/m_consulting_2.png",
+    "ogTitle": "Intellect Inbox",
+    "ogDescription": "Intellect Inbox provides daily personalized educational content to help you learn something new every day. We have a free version and a premium version with more features, and can seemlessly be used on desktop or mobile to learn something new every day.",
+    "appleTouchIcon": "%PUBLIC_URL%/apple-touch-icon.png",
+    "manifest": "%PUBLIC_URL%/manifest.json",
+    "title": "Intellect Inbox"
+  }

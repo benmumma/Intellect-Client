@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="wot-verification" content="cf615f803153ac42b925"/>
+    <script defer data-domain="intellect.email" src="https://plausible.io/js/script.js"></script>
+    <link rel="icon" href="%PUBLIC_URL%/favicons/favicon.ico" />
+    <link rel="stylesheet" href="/css/index.css">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#000000" />
+    <meta
+      name="description"
+      content="Intellect Inbox provides daily personalized educational content to help you learn something new every day. We have a free version and a premium version with more features, and can seemlessly be used on desktop or mobile to learn something new every day."
+    />
+    <meta property="og:image" content="/home/ii-v1.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:image" content="https://www.intellect.email/ii/ii_hero_v1_min.png" />
+    <meta property="og:title" content="Intellect Inbox" />
+    <meta property="og:description" content="Intellect Inbox provides daily personalized educational content to help you learn something new every day. We have a free version and a premium version with more features, and can seemlessly be used on desktop or mobile to learn something new every day." />
+
+    <link rel="apple-touch-icon" href="%PUBLIC_URL%/favicons/apple-touch-icon.png" />
+
+    <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />   
+    <script>
+      if ('serviceWorker' in navigator) {
+      window.addEventListener('load', function() {
+      navigator.serviceWorker.register('/service-worker.js').then(function(registration) {
+      // Registration was successful
+      console.log('Registered!');
+      }, function(err) {
+      // registration failed :(
+      console.log('ServiceWorker registration failed: ', err);
+      }).catch(function(err) {
+      console.log(err);
+      });
+      });
+      } else {
+      console.log('service worker is not supported');
+      }
+      </script>
+    <title>Intellect Inbox</title>
+  </head>
+  <body>
+    <noscript>You need to enable JavaScript to run this app.</noscript>
+    <div id="root"></div>
+    <!--
+      This HTML file is a template.
+      If you open it directly in the browser, you will see an empty page.
+
+      You can add webfonts, meta tags, or analytics to this file.
+      The build step will place the bundled scripts into the <body> tag.
+
+      To begin the development, run `npm start` or `yarn start`.
+      To create a production bundle, use `npm run build` or `yarn build`.
+    -->
+  </body>
+</html>

@@ -1,0 +1,117 @@
+/* src/assets/fonts/custom-font.css */
+@font-face {
+  font-family: 'sofiapro-light';
+  src: url('/fonts/sofiapro-light-webfont.woff2') format('woff2'),
+       url('/fonts/sofiapro-light-webfont.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+}
+
+.chakra-menu__menu-list {
+  border-radius: 0px !important;
+}
+
+span.katex {
+  line-height:3;
+}
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}
+
+.activeLocation {
+  text-decoration:underline;
+  text-decoration-thickness:3px;
+}
+
+.App {
+  font-family: sans-serif;
+  text-align: center;
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 40px;
+}
+
+input {
+  font-size: 16px;
+  padding: 8px;
+  margin-right: 10px;
+}
+
+button {
+  font-size: 16px;
+  padding: 8px 16px;
+  cursor: pointer;
+}
+
+/****************************************************
+Animations
+****************************************************/
+.slide-enter {
+  transform: translateX(-100%);
+  transition: transform 0.3s ease-in-out;
+}
+
+.slide-enter-active {
+  transform: translateX(0);
+}
+
+.slide-exit {
+  transform: translateX(0);
+  transition: transform 0.3s ease-in-out;
+}
+
+.slide-exit-active {
+  transform: translateX(100%);
+}
+
+.fade-enter {
+  opacity: 0;
+}
+
+.fade-enter-active {
+  opacity: 1;
+  transition: opacity 50ms ease-in;
+}
+
+.fade-exit {
+  opacity: 1;
+}
+
+.fade-exit-active {
+  opacity: 0;
+  transition: opacity 50ms ease-in;
+}
+
+/* In your CSS file */
+.animated-progress-bar {
+  transition: width 0.5s ease-in-out; /* Adjust the duration and easing to your preference */
+}
+
+/*********************************************
+Forward Style Classes
+*********************************************/
+.forwardButton {
+  border-radius:0px !important;
+  box-shadow: rgba(0, 0, 0, 0.12) 0px 1px 3px, rgba(0, 0, 0, 0.24) 0px 1px 2px;
+}
+
+@media print {
+  .no-print {
+      display: none !important;
+  }
+  .print-rows {
+    flex-direction: row !important;
+  }
+}
+

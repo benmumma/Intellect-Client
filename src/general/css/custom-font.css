@@ -1,0 +1,9 @@
+/* src/assets/fonts/custom-font.css */
+  @font-face {
+    font-family: 'sofiapro-light';
+    src: url('/fonts/sofiapro-light-webfont.woff2') format('woff2'),
+         url('/fonts/sofiapro-light-webfont.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+
+}

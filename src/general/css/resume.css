@@ -1,0 +1,160 @@
+@font-face {
+    font-family: 'sofiapro-light';
+    src: url('sofiapro-light-webfont.woff2') format('woff2'),
+         url('sofiapro-light-webfont.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+  }
+  body {
+      font-family: 'sofiapro-light';
+  }
+  p {
+    margin-bottom:0.2rem;
+  }
+  .container-fluid {
+    padding-left:10px;
+    padding-right:10px;
+  }
+  
+  h3, h4, h5, h6{
+    color:#0062cc;
+    margin-bottom: 0.2rem;
+  }
+  h5 {
+    font-size:1.03rem;
+  }
+  i.fa {
+    color:darkgray;
+  }
+  
+  h3 .contrast, h4 .contrast, h5 .contrast, h6 .contrast {
+    color: black;
+  }
+  ul {
+    padding-left:20px;
+    margin-bottom:2px;
+    font-size:0.95rem;
+  }
+  
+  ul.skill-list {
+    padding-left: 15px;
+  }
+  
+  
+    hr {
+      margin-top:0.2rem;
+      margin-bottom:0.2rem;
+    }
+    .descriptor h4 {
+      font-weight:700;
+      font-variant:petite-caps;
+      color: darkslategray;
+      margin-bottom:0px;
+      font-size:1.3rem;
+    }
+    hr.main {
+      margin-top:3px;
+      margin-bottom:6px;
+      /*border-width: 3px 0;*/
+    }
+    div.first {
+      margin-top:35px;
+    }
+    div.descriptor {
+      text-align: center;
+    }
+    div.date{
+      text-align:right;
+      font-size:1.1em;
+    }
+    div.date.date-minor {
+      font-size:0.9em;
+      color:darkgray;
+    }
+    div.date p {
+      margin-bottom:0px;
+    }
+  
+    p.lead.statement {
+      margin-bottom:4px;
+      font-size:1.1em;
+  
+    }
+  
+    .col-md-10 {
+      padding-left:0px;
+      /*border-left:2px solid darkblue;*/
+    }
+  
+    p.company-description{
+      font-style:italic;
+      margin-bottom:0px;
+    }
+    h5.skill-header{
+      text-align:left;
+      font-weight:600;
+      font-variant:all-petite-caps;
+    }
+    #skills h6 {
+      text-align:center;
+      color:darkgray;
+      font-variant:all-petite-caps;
+    }
+    p.contact-info{
+      text-align:justify;
+    }
+    ul.work-samples{
+      font-size:1.2em;
+    }
+    div#startup{
+      font-size:1.2em;
+    }
+    div#startup h5 {
+      font-size:1.2em;
+    }
+    p.role-description {
+      font-size:1em;
+    }
+    p.role-description .btn-sm {
+      font-weight:bold;
+    }
+      div.contact-info.flex-container {
+        width:100%;
+        display:flex;
+        align-content:space-between;
+      }
+  
+    div.contact-info .flex-item {
+      flex-grow:2;
+    }
+  
+    div.contact-info .flex-item.fi1 {
+      text-align:left;
+      flex-basis:0;
+  
+    }
+  
+    div.contact-info .flex-item.fi2 {
+      text-align:center;
+      flex-basis:0;
+    }
+  
+    div.contact-info .flex-item.fi3 {
+      text-align:right;
+      flex-basis:0;
+  
+    }
+    span.min-context {
+      font-size:0.75em;
+      color:darkgray;
+    }
+    h5 {
+      margin-bottom:2px;
+    }
+    h4.my-name {
+      text-align:center;
+      font-size:1.6em;
+    }
+    .job-title-main {
+      margin-bottom:-5px;
+    }
