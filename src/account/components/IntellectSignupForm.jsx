@@ -1,11 +1,14 @@
 import React, {useState} from 'react';
 import { Box, Button, FormControl, FormLabel, Input, Checkbox, Link, useToast, Text, Tooltip, useMediaQuery, useColorModeValue } from "@chakra-ui/react";
 import { Link as ReachLink } from 'react-router-dom';
+import { REACT_APP_USE_CENTRALIZED_AUTH } from '../../constants/constants';
+import useCentralizedAuth from '../../auth/useCentralizedAuth';
 
 const IntellectSignupForm = ({ handleSignup, mode="hero"}) => {
     const [email, setEmail] = useState("");
     const [isChecked, setIsChecked] = useState(true);
     const [isMobile] = useMediaQuery("(max-width: 600px)");
+    const { signIn } = useCentralizedAuth();
 
     const isEmailValid = (email) => {
         const re = /\S+@\S+\.\S+/;
@@ -28,6 +31,24 @@ const IntellectSignupForm = ({ handleSignup, mode="hero"}) => {
     const handleSignupIntellect = (event) => {
         handleSignup(event, email, 'intellectinbox');
         setEmail("");
+    }
+
+    // When centralized auth is enabled, we send users to the centralized auth flow instead of collecting email here.
+    if (REACT_APP_USE_CENTRALIZED_AUTH) {
+        return (
+            <form onSubmit={(e) => { e.preventDefault(); signIn(); }}>
+                <Box width="100%" px={2}>
+                    <Text textAlign="center" width="100%" fontSize="xl" fontWeight="bold">Start Today</Text>
+                    <Text textAlign="center" width="100%" fontSize="md" mb={4}>Get personalized lessons straight to your inbox!</Text>
+                    <FormControl id="pptos" my={3}>
+                        <Checkbox size="xl" colorScheme="teal" isChecked={isChecked} onChange={handleCheckboxChange}><Text fontSize={isMobile ? 'sm' : 'md'}>I agree to Mumma Lab's <Link color="teal" fontWeight="bold" as={ReachLink} to="/tos" target="_blank">Terms of Service</Link> and <Link color="teal" fontWeight="bold" as={ReachLink} to="/privacy" target="_blank">Privacy Policy</Link></Text></Checkbox>
+                    </FormControl>
+                    <Button my={2} py={6} fontSize="xl" variant="solid" colorScheme="green" width="100%" type="submit" isDisabled={!isChecked} _disabled={{opacity:1, cursor:'not-allowed'}}>
+                        Continue with Mumma Auth
+                    </Button>
+                </Box>
+            </form>
+        );
     }
 
     const handleButtonHover = () => {

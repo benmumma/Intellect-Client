@@ -1,6 +1,6 @@
 import React, { createContext, useState, useContext, useEffect, useReducer, useCallback } from 'react';
-import { ii_supabase } from '../../constants/supabaseClient';
-import { read_ii_user, upsert_ii_user } from '../api/ii_users';
+import { ii_supabase, setIISupabaseSession, clearIISupabaseSession } from '../../constants/supabaseClient';
+import { read_ii_user, upsert_ii_user, create_ii_user_via_backend } from '../api/ii_users';
 import { read_ii_subjects } from '../api/ii_subjects';
 import { read_ii_audiences } from '../api/ii_audiences';
 import { read_ii_user_posts_v2 } from '../api/ii_user_posts';
@@ -23,21 +23,68 @@ export const IntellectInboxProvider = ({ children }) => {
     const [userLessonsFetched, setUserLessonsFetched] = useState(false);
     const [chatMessages, setChatMessages] = useState({});
     const useCentralized = REACT_APP_USE_CENTRALIZED_AUTH;
-    const { isAuthenticated: cAuthenticated, user: cUser, loading: cLoading } = useCentralizedAuth();
+    const { isAuthenticated: cAuthenticated, user: cUser, session: cSession, loading: cLoading } = useCentralizedAuth();
 
     
     // Initialize session
     useEffect(() => {
         if (useCentralized) {
+            // Wait for centralized auth to finish loading to avoid premature reset
+            if (cLoading) {
+                setLoadingSession(true);
+                return; // do nothing until centralized auth resolves
+            }
             // Mirror centralized auth state into iiSession shape
-            if (cAuthenticated && cUser) {
-                setIISession({ user: { id: cUser.id, email: cUser.email } });
-                setUserLoaded(true);
-            } else {
+            (async () => {
+              if (cAuthenticated) {
+                // Immediately reflect signed-in UI with minimal info
+                dispatch({
+                  type: 'UPDATE_STATE',
+                  payload: {
+                    userStatus: 'signed_in',
+                    user_id: cUser?.id || null,
+                    email_address: cUser?.email || null,
+                  },
+                });
+                // Bridge centralized session into Supabase client
+                if (cSession) {
+                  await setIISupabaseSession(cSession);
+                }
+                // If centralized auth didn't provide user, try to get it from Supabase after setting session
+                let finalUser = cUser;
+                if (!finalUser && cSession) {
+                  try {
+                    const { data: { user: sUser } } = await ii_supabase.auth.getUser();
+                    if (sUser) finalUser = sUser;
+                  } catch (e) {
+                    console.warn('Supabase getUser failed after setting session', e);
+                  }
+                }
+                if (finalUser) {
+                  setIISession({ user: { id: finalUser.id, email: finalUser.email } });
+                  setUserLoaded(true);
+                  // Immediately reflect signed-in UI while data loads
+                  dispatch({
+                    type: 'UPDATE_STATE',
+                    payload: {
+                      userStatus: 'signed_in',
+                      user_id: finalUser.id,
+                      email_address: finalUser.email,
+                    },
+                  });
+                } else {
+                  // Auth says authenticated but no user; keep UI signed-in and wait for next tick/user fetch
+                  setIISession(null);
+                  setUserLoaded(false);
+                }
+              } else {
+                await clearIISupabaseSession();
                 setIISession(null);
                 setUserLoaded(false);
-            }
-            setLoadingSession(cLoading);
+                dispatch({ type: 'RESET_STATE' });
+              }
+              setLoadingSession(false);
+            })();
             return; // no Supabase auth listeners when centralized auth is on
         }
 
@@ -93,7 +140,7 @@ export const IntellectInboxProvider = ({ children }) => {
                 authListener.data.subscription.unsubscribe();
             }
         };
-    }, [useCentralized, cAuthenticated, cUser, cLoading]);
+    }, [useCentralized, cAuthenticated, cUser, cSession, cLoading]);
 
     const fetchUserData = useCallback(async () => {
        // console.log('fetchUserData user data');
@@ -123,7 +170,8 @@ export const IntellectInboxProvider = ({ children }) => {
                     dow_schedule: format_dow_schedule([], null),
                     user_name: iiSession.user.email ? iiSession.user.email.split('@')[0] : 'Anonymous',
                 };
-                const { result } = await upsert_ii_user(defaultUserRow);
+                // Create via backend (service role) to avoid client-side RLS issues
+                const { result } = await create_ii_user_via_backend(defaultUserRow);
                 if (result === 'success') {
                     userData = await read_ii_user(iiSession.user.id);
                 }
@@ -189,7 +237,7 @@ export const IntellectInboxProvider = ({ children }) => {
 
         try {
             //console.log('fetchUserLessons in try')
-            const data = await read_ii_user_posts_v2({user_id:inboxState.user_id});
+            const data = await read_ii_user_posts_v2({ user_id: inboxState.user_id });
             if (data.length > 0) {
                 dispatch({ type: 'SET_LESSONS', payload: data });
                 dispatch({ type: 'UPDATE_STATE', payload: { last_email: data[0].created_at } });
@@ -203,46 +251,78 @@ export const IntellectInboxProvider = ({ children }) => {
 
     const checkAuthStatus = useCallback(async () => {
         try {
-          if (useCentralized) {
-            if (cAuthenticated && cUser) {
-              setIISession({ user: { id: cUser.id, email: cUser.email } });
-              setUserLoaded(true);
-              if (!userDataFetched) {
-                await fetchUserData();
-              }
-              if (!userLessonsFetched) {
-                await fetchUserLessons();
-              }
+            if (useCentralized) {
+                if (cAuthenticated && (cUser || cSession)) {
+                    // Bridge tokens first if present
+                    if (cSession) {
+                        await setIISupabaseSession(cSession);
+                    }
+                    // Flip UI immediately
+                    dispatch({
+                        type: 'UPDATE_STATE',
+                        payload: {
+                            userStatus: 'signed_in',
+                            user_id: cUser?.id || null,
+                            email_address: cUser?.email || null,
+                        },
+                    });
+
+                    // Ensure we have a concrete user; try Supabase if centralized user missing
+                    let finalUser = cUser || null;
+                    if (!finalUser && cSession) {
+                        try {
+                            const { data: { user: sUser } } = await ii_supabase.auth.getUser();
+                            if (sUser) finalUser = sUser;
+                        } catch (e) {
+                            console.warn('Supabase getUser failed in checkAuthStatus()', e);
+                        }
+                    }
+
+                    if (finalUser) {
+                        setIISession({ user: { id: finalUser.id, email: finalUser.email } });
+                        setUserLoaded(true);
+                        if (!userDataFetched) {
+                            await fetchUserData();
+                        }
+                        if (!userLessonsFetched) {
+                            await fetchUserLessons();
+                        }
+                    } else {
+                        // Stay signed-in visually; we'll fetch user on next tick
+                        setIISession(null);
+                        setUserLoaded(false);
+                    }
+                } else {
+                    await clearIISupabaseSession();
+                    setIISession(null);
+                    setUserLoaded(false);
+                    dispatch({ type: 'RESET_STATE' });
+                }
+                setLoadingSession(false);
+                return;
+            }
+
+            const { data: { session }, error } = await ii_supabase.auth.getSession();
+            if (session) {
+                setIISession(session);
+                setUserLoaded(true);
+                if (!userDataFetched) {
+                    await fetchUserData();
+                }
+                if (!userLessonsFetched) {
+                    await fetchUserLessons();
+                }
             } else {
-              setIISession(null);
-              setUserLoaded(false);
-              dispatch({ type: 'RESET_STATE' });
+                setIISession(null);
+                setUserLoaded(false);
+                dispatch({ type: 'RESET_STATE' });
             }
             setLoadingSession(false);
-            return;
-          }
-
-          const { data: { session }, error } = await ii_supabase.auth.getSession();
-          if (session) {
-            setIISession(session);
-            setUserLoaded(true);
-            if (!userDataFetched) {
-              await fetchUserData();
-            }
-            if (!userLessonsFetched) {
-              await fetchUserLessons();
-            }
-          } else {
-            setIISession(null);
-            setUserLoaded(false);
-            dispatch({ type: 'RESET_STATE' });
-          }
-          setLoadingSession(false);
         } catch (error) {
-          console.error('Error checking auth status:', error);
-          setLoadingSession(false);
+            console.error('Error checking auth status:', error);
+            setLoadingSession(false);
         }
-      }, [useCentralized, cAuthenticated, cUser, fetchUserData, fetchUserLessons, userDataFetched, userLessonsFetched]);
+    }, [useCentralized, cAuthenticated, cUser, cSession, fetchUserData, fetchUserLessons, userDataFetched, userLessonsFetched]);
 
 
     useEffect(() => {

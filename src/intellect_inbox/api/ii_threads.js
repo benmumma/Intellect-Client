@@ -1,4 +1,4 @@
-import { ii_supabase } from "../../api/supabaseClient";
+import { ii_supabase } from "../../constants/supabaseClient";
 
 export async function read_ii_threads() {
   console.log('reading ii_threads');

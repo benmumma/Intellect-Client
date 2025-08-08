@@ -8,7 +8,7 @@ import CourseLevelVisualizer from '../components/visuals/CourseLevelVisualizer';
 import RatingVisualizer from '../components/visuals/RatingVisualizer';
 import TeacherVisualizer from '../components/visuals/TeacherVisualizer';
 const PublicDirectoryRow = ({course}) => {
-    console.log(course);
+    //console.log(course);
     const navigate = useNavigate();
     const colors = useColors();
     const [isMobile] = useMediaQuery("(max-width: 48em)");

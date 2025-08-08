@@ -49,6 +49,26 @@ You can toggle between Supabase Auth (legacy) and centralized Mumapps-Auth witho
 
 Note: The app still uses Supabase for data (profiles, lessons, storage). The centralized auth governs app access and session; data CRUD continues via the configured Supabase instance.
 
+### Centralized Auth → Supabase Session Bridge
+
+When `REACT_APP_USE_CENTRALIZED_AUTH=true`, the front-end now initializes the Supabase client session using the access and refresh tokens from the centralized auth session. This enables direct Supabase reads/writes (RLS) from the client to work under centralized auth.
+
+- Helper functions in `src/constants/supabaseClient.js`:
+  - `setIISupabaseSession(session)` — calls `supabase.auth.setSession({ access_token, refresh_token })` with tokens from centralized auth.
+  - `clearIISupabaseSession()` — signs out the local Supabase client.
+- Wiring in `src/intellect_inbox/context/IntellectInboxContext.jsx`:
+  - On centralized auth changes, we set/clear the Supabase session before fetching user data/lessons.
+  - Supabase auth listeners are disabled when centralized auth is on to avoid conflicts.
+- Sign-out behavior:
+  - `HeaderBar.jsx` and `IntellectInboxMain.jsx` defer to centralized sign-out when enabled; otherwise, they sign out of Supabase directly.
+
+This mirrors the robust pattern used in Mumapps-Client and fixes failures of direct Supabase calls under centralized auth.
+
+#### Immediate signed-in UI behavior
+
+- When centralized auth confirms a valid session, `src/intellect_inbox/context/IntellectInboxContext.jsx` immediately dispatches `userStatus: 'signed_in'` with minimal user info so `src/intellect_inbox/IntellectInboxMain.jsx` can render the app shell while profile/lessons load in the background.
+- `loadingSession` is set to `false` after centralized auth handling completes. Subsequent background fetches (`fetchUserData()`, `fetchUserLessons()`) hydrate the full state.
+
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
 ## Available Scripts

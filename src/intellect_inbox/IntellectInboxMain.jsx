@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link as ReachLink } from 'react-router-dom';
 import { useToast, useMediaQuery, useColorModeValue } from '@chakra-ui/react';
-import { ii_supabase } from '../constants/supabaseClient';
 import { useIntellectInbox } from './context/IntellectInboxContext';
+import useCentralizedAuth from '../auth/useCentralizedAuth';
+import { REACT_APP_USE_CENTRALIZED_AUTH } from '../constants/constants';
 import useAuth from '../account/hooks/useAuth';
 import MyHeader from '../general/components/MyHeader';
 import Footer from '../general/components/Footer';
 import HeaderBar from './components/navigation/HeaderBar';
+
 import IntellectSignupForm from '../account/components/IntellectSignupForm';
 import IntellectLoginForm from '../account/components/IntellectLoginForm';
 import CourseSection from './courses/course_table/CourseSection';
@@ -18,9 +20,12 @@ import useColors from './theming/useColors';
 
 function IntellectInboxMain() {
   const { iiSession, loadingSession, userLoaded, inboxState, dispatch } = useIntellectInbox();
+  const useCentralized = REACT_APP_USE_CENTRALIZED_AUTH;
+  const { isAuthenticated: cAuthenticated } = useCentralizedAuth();
   const navigate = useNavigate();
   const [isSignup, setIsSignup] = useState(true);
-  const { signInWithOtp } = useAuth();
+  const { signInWithOtp, signOut } = useAuth();
+
   const toast = useToast();
   const [isMobile] = useMediaQuery("(max-width: 600px)");
   const boxBg = useColorModeValue('gray.50', 'gray.900');
@@ -47,27 +52,19 @@ function IntellectInboxMain() {
   };
 
   const handleSignOut = async () => {
-    const { error } = await ii_supabase.auth.signOut();
+    const { error } = await signOut('intellectinbox');
     if (!error) {
-      toast({
-        title: "Signed Out",
-        description: "You have been signed out",
-        status: "success",
-        position: 'top',
-        isClosable: true,
-      });
       dispatch({ type: 'INBOX_SIGN_OUT' });
       dispatch({ type: 'RESET_STATE' });
       navigate('/');
     } else {
       toast({
-        title: "Error",
-        description: "Error signing out",
-        status: "error",
+        title: 'Error',
+        description: 'Error signing out',
+        status: 'error',
         position: 'top',
         isClosable: true,
       });
-      console.error(error);
     }
   };
 
@@ -86,12 +83,12 @@ function IntellectInboxMain() {
   return (
     <Box width="100%">
       <MyHeader />
-      {inboxState.userStatus === 'signed_in' && (
+      {(inboxState.userStatus === 'signed_in' || (useCentralized && cAuthenticated)) && (
         <HeaderBar />
       )}
       <Center px={2} width="100%">
         <VStack spacing={2} width="100%">
-          {inboxState.userStatus === 'not_signed_in' && (
+          {!(inboxState.userStatus === 'signed_in' || (useCentralized && cAuthenticated)) && (
             <Center width="100%">
               <VStack>
                 <Box
@@ -158,7 +155,7 @@ function IntellectInboxMain() {
               </VStack>
             </Center>
           )}
-          {inboxState.userStatus === 'signed_in' && (
+          {(inboxState.userStatus === 'signed_in' || (useCentralized && cAuthenticated)) && (
             <>
               <CourseSection />
               {/*<Heading as="h2" size="md" mt={2}>My Lessons</Heading>

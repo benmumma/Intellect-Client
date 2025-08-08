@@ -33,7 +33,7 @@ import { Link as ReachLink } from 'react-router-dom';
 import useColors from '../../theming/useColors';
 import { ii_supabase } from '../../../constants/supabaseClient';
 
-const GeneralLessonTable = React.memo(({ lessons, course_id = null }) => {
+const GeneralLessonTable = React.memo(({ lessons = [], course_id = null }) => {
     useEffect(() => {
       console.log('GeneralLessonTable received new lessons:', lessons);
   }, [lessons]);
@@ -306,48 +306,63 @@ const GeneralLessonTable = React.memo(({ lessons, course_id = null }) => {
       ) : (
         <Table {...getTableProps()}>
           <Thead>
-            {headerGroups.map((headerGroup) => (
-              <React.Fragment key={headerGroup.id}>
-                <Tr {...headerGroup.getHeaderGroupProps()} >
-                  {headerGroup.headers.map((column) => (
-                    <Th
-                      {...column.getHeaderProps(column.getSortByToggleProps())}
-                      isNumeric={column.isNumeric}
-                      borderBottom="1px" borderColor={colors.border.main}
-                    >
-                      {column.render('Header')}
-                      <chakra.span pl="4">
-                        {column.isSorted ? (
-                          column.isSortedDesc ? (
-                            <FaCaretDown aria-label="sorted descending" />
-                          ) : (
-                            <FaCaretUp aria-label="sorted ascending" />
-                          )
-                        ) : null}
-                      </chakra.span>
-                    </Th>
-                  ))}
-                </Tr>
-                <Tr>
-                  {headerGroup.headers.map((column) => (
-                    <Th key={column.id} borderBottom="1px" borderColor={colors.border.main}>
-                      {column.canFilter ? column.render('Filter') : null}
-                    </Th>
-                  ))}
-                </Tr>
-              </React.Fragment>
-            ))}
+            {headerGroups.map((headerGroup) => {
+              const headerGroupProps = headerGroup.getHeaderGroupProps();
+              const { key: headerGroupKey, ...restHeaderGroupProps } = headerGroupProps;
+              return (
+                <React.Fragment key={headerGroup.id ?? headerGroupKey}>
+                  <Tr key={headerGroupKey} {...restHeaderGroupProps} >
+                    {headerGroup.headers.map((column) => {
+                      const headerProps = column.getHeaderProps(column.getSortByToggleProps());
+                      const { key: headerKey, ...restHeaderProps } = headerProps;
+                      return (
+                        <Th
+                          key={headerKey}
+                          {...restHeaderProps}
+                          isNumeric={column.isNumeric}
+                          borderBottom="1px" borderColor={colors.border.main}
+                        >
+                          {column.render('Header')}
+                          <chakra.span pl="4">
+                            {column.isSorted ? (
+                              column.isSortedDesc ? (
+                                <FaCaretDown aria-label="sorted descending" />
+                              ) : (
+                                <FaCaretUp aria-label="sorted ascending" />
+                              )
+                            ) : null}
+                          </chakra.span>
+                        </Th>
+                      );
+                    })}
+                  </Tr>
+                  <Tr>
+                    {headerGroup.headers.map((column) => (
+                      <Th key={column.id} borderBottom="1px" borderColor={colors.border.main}>
+                        {column.canFilter ? column.render('Filter') : null}
+                      </Th>
+                    ))}
+                  </Tr>
+                </React.Fragment>
+              );
+            })}
           </Thead>
           <Tbody {...getTableBodyProps()}>
             {rows.map((row) => {
               prepareRow(row);
+              const rowProps = row.getRowProps();
+              const { key: rowKey, ...restRowProps } = rowProps;
               return (
-                <Tr {...row.getRowProps()} key={row.id}>
-                  {row.cells.map((cell) => (
-                    <Td {...cell.getCellProps()} isNumeric={cell.column.isNumeric} borderBottom="1px" borderColor={colors.border.main}>
-                      {cell.render('Cell')}
-                    </Td>
-                  ))}
+                <Tr key={rowKey} {...restRowProps}>
+                  {row.cells.map((cell) => {
+                    const cellProps = cell.getCellProps();
+                    const { key: cellKey, ...restCellProps } = cellProps;
+                    return (
+                      <Td key={cellKey} {...restCellProps} isNumeric={cell.column.isNumeric} borderBottom="1px" borderColor={colors.border.main}>
+                        {cell.render('Cell')}
+                      </Td>
+                    );
+                  })}
                 </Tr>
               );
             })}

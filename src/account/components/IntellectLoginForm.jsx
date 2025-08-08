@@ -3,12 +3,15 @@
 import React, {useState} from 'react';
 import { FormControl, FormLabel, Input, Button, Link, useColorModeValue} from "@chakra-ui/react";
 import useAuth from '../hooks/useAuth';
+import { REACT_APP_USE_CENTRALIZED_AUTH } from '../../constants/constants';
+import useCentralizedAuth from '../../auth/useCentralizedAuth';
 
 const IntellectLoginForm = ({ mode="hero"}) => {
 
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const { loginWithPassword } = useAuth();
+    const { signIn } = useCentralizedAuth();
 
     const handleLoginIntellect = async (event) => {
         event.preventDefault();
@@ -29,6 +32,17 @@ const IntellectLoginForm = ({ mode="hero"}) => {
         bgColor = 'teal.800';
         textColor = 'white';
         bdColor = 'teal.600';
+    }
+
+    // When centralized auth is enabled, use redirect-based sign-in instead of local credential form.
+    if (REACT_APP_USE_CENTRALIZED_AUTH) {
+        return (
+            <form onSubmit={(e) => { e.preventDefault(); signIn(); }}>
+                <Button my={4} width="100%" colorScheme="green" type="submit">
+                    Continue with Mumma Auth
+                </Button>
+            </form>
+        );
     }
 
     const isEmailValid = (email) => {

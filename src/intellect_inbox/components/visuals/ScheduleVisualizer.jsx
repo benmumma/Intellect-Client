@@ -1,6 +1,5 @@
-
 // CourseSchedule.jsx
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import { Flex, Box, Button, Tooltip } from '@chakra-ui/react';
 import { make_reception_string, format_reception_days} from '../../helpers/reception_days'
 import limits from '../../../constants/limits';
@@ -19,8 +18,14 @@ const ScheduleVisualizer = ({ course, dow_schedule, for_legacy_mode=false, statu
     const {updateCourseSchedule} = useUserCourses();
     const {updateUserSchedule} = useUsers();
     const weekdays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
-    const [receptionDays, setReceptionDays] = useState(format_reception_days(dow_schedule));
+    const initialDays = format_reception_days(dow_schedule) || [];
+    const [receptionDays, setReceptionDays] = useState(initialDays);
     const colors = useColors();
+
+    // Keep local state in sync if the provided schedule changes
+    useEffect(() => {
+      setReceptionDays(format_reception_days(dow_schedule) || []);
+    }, [dow_schedule]);
 
     const toggleDay = (day) => {
   console.log('Toggling day:', day)

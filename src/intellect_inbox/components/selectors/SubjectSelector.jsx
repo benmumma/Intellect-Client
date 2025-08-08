@@ -60,9 +60,11 @@ const SubjectSelector = ({subjects, currentSubject, setCurrentSubject, mode="sin
 
     const [valueShown, setValueShown] = useState(getCurrentSubject());
 
-    //useEffect(() => {
-    //    setValueShown(getCurrentSubject());
-    //}, [currentSubject, index]);
+    // Keep selected value in sync when props or lists change
+    useEffect(() => {
+        setValueShown(getCurrentSubject());
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [currentSubject, index, subjects]);
 
     const main_aggregations = subjects
                                 .filter((subject) => subject.status === 1)

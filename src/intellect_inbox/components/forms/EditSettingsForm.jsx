@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
     Box,
     Button,
@@ -39,8 +39,17 @@ const EditSettingsForm = ({ parameter_list, onClose, display_mode = 'modal_form'
     const inputBg = useColorModeValue('gray.100', 'gray.600');
     const inputBgSelected = useColorModeValue('teal.100', 'teal.600');
 
-
     const [receptionDays, setReceptionDays] = useState(format_reception_days(inboxState?.dow_schedule) || ['Mon', 'Tue', 'Wed', 'Thu', 'Fri']);
+
+    // Keep local options in sync when context finishes loading
+    useEffect(() => {
+        setSubjects(inboxState.subject_options);
+    }, [inboxState.subject_options]);
+
+    useEffect(() => {
+        setAudiences(inboxState.audience_options);
+    }, [inboxState.audience_options]);
+
     const toggleDay = (day) => {
         if (receptionDays.includes(day)) {
             setReceptionDays(receptionDays.filter(d => d !== day));

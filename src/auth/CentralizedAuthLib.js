@@ -79,23 +79,35 @@ class CentralizedAuthLib {
   async checkAuthStatus() {
     const origin = this._buildAuthOrigin();
     try {
-      const response = await fetch(`${origin}/api/auth-status`, {
+      const response = await fetch(`${origin}/api/auth-status?ts=${Date.now()}`, {
         method: 'GET',
         credentials: 'include',
+        cache: 'no-store',
       });
 
       if (response.ok) {
         const authData = await response.json();
-        if (authData.authenticated) {
+        // Accept multiple shapes from the auth service
+        const appAccess = authData.appAccess || authData.app_access || {};
+        const session = authData.session || authData.tokens || null;
+        const user = authData.user || authData.profile || null;
+        const isAuthenticated = !!(
+          authData.authenticated === true ||
+          authData.auth_status === 'success' ||
+          user ||
+          (session && (session.access_token || session.refresh_token))
+        );
+
+        if (isAuthenticated) {
           this.setAuthState({
             isAuthenticated: true,
-            user: authData.user,
-            session: authData.session,
-            appAccess: authData.appAccess || {},
+            user: user || null,
+            session: session || null,
+            appAccess: appAccess,
           });
 
-          const hasIntellectAccess = authData.appAccess?.['intellect-inbox'] || authData.appAccess?.['full-site'];
-          return { authenticated: true, user: authData.user, session: authData.session, hasIntellectAccess: !!hasIntellectAccess };
+          const hasIntellectAccess = appAccess['intellect-inbox'] || appAccess['full-site'] || authData.hasIntellectAccess;
+          return { authenticated: true, user: user || null, session: session || null, hasIntellectAccess: !!hasIntellectAccess };
         }
       }
     } catch (e) {

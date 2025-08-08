@@ -9,12 +9,15 @@ import EditSettingsModal from '../modals/EditSettingsModal.jsx';
 import AdHocLessonButton from '../buttons/AdHocLessonButton.jsx';
 import { Link as RouterLink } from 'react-router-dom';
 import { ii_supabase } from '../../../constants/supabaseClient.js';
+import useCentralizedAuth from '../../../auth/useCentralizedAuth.js';
+import { REACT_APP_USE_CENTRALIZED_AUTH } from '../../../constants/constants.js';
 import { format_hour } from '../../helpers/datetimehelpers.js';
 import gh from '../../helpers/generic.js'
 
 const HeaderBar = ({ values }) => {
     const toast = useToast();
     const { inboxState, dispatch } = useIntellectInbox();
+    const { signOut } = useCentralizedAuth();
     const { isOpen, onOpen, onClose } = useDisclosure();
     const { isOpen: isPremiumOpen, onOpen: onPremiumOpen, onClose: onPremiumClose } = useDisclosure();
     const [parameterList, setParameterList] = useState({});
@@ -28,34 +31,32 @@ const HeaderBar = ({ values }) => {
     }
 
     const handleSignout = async () => {
-        const { data, error:derror } = await ii_supabase.auth.refreshSession();
-        if (derror) {
-            console.error('Error refreshing session:', derror.message);
-        } else {
-            console.log('Session refreshed successfully', data);
-        }
-        const { error } = await ii_supabase.auth.signOut();
-        if (!error) {
+        try {
+          if (REACT_APP_USE_CENTRALIZED_AUTH) {
+            await signOut();
+          } else {
+            const { error } = await ii_supabase.auth.signOut();
+            if (error) throw error;
+          }
           toast({
-            title: "Signed Out",
-            description: "You have been signed out",
-            status: "success",
+            title: 'Signed Out',
+            description: 'You have been signed out',
+            status: 'success',
             position: 'top',
             isClosable: true,
           });
           dispatch({ type: 'INBOX_SIGN_OUT' });
-        }
-        else {
+        } catch (error) {
           toast({
-            title: "Error",
-            description: "Error signing out",
-            status: "error",
+            title: 'Error',
+            description: 'Error signing out',
+            status: 'error',
             position: 'top',
             isClosable: true,
           });
           console.error(error);
         }
-      };
+    };
 
    const [currentSubject, setCurrentSubject] = useState('');
     const [currentAudience, setCurrentAudience] = useState('');
