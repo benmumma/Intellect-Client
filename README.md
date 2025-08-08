@@ -1,3 +1,54 @@
+## Intellect-Client Supabase Migration (Legacy/New Toggle)
+
+The app can target either the legacy Supabase instance or a new Supabase instance without code changes.
+
+- __Toggle__: Set `REACT_APP_USE_NEW_SUPABASE` to `'true'` (new) or `'false'` (legacy) in `.env`.
+- __Env Vars__:
+  - Legacy: `REACT_APP_II_SUPABASE_URL`, `REACT_APP_II_SUPABASE_ANON_KEY`
+  - New: `REACT_APP_SUPABASE_URL`, `REACT_APP_SUPABASE_ANON_KEY` (fallbacks supported: `REACT_APP_NEW_SUPABASE_URL`, `REACT_APP_NEW_SUPABASE_ANON_KEY`)
+  - Backend base: `REACT_APP_SERVER_URL`, `REACT_APP_SERVER_PORT` (compose `API_BASE_URL`)
+- __Buckets__: `ii_lessons` and `ii_chats` (legacy) → `ii-lessons` and `ii-chats` (new). Components select the bucket dynamically.
+- __API dbInstance__: Frontend calls to Intellect Inbox endpoints include `dbInstance: 'current' | 'new'` based on the toggle.
+  - Updated endpoints/components:
+    - `intellectinbox/chat` → `src/intellect_inbox/lesson_page/ChatForm.jsx`, `src/intellect_inbox/lesson_page/HighlightMenu.jsx`
+    - `intellectinbox/createCurriculum` → `src/intellect_inbox/courses/course_creation/CourseCreationForm.jsx`
+    - `intellectinbox/createNextLesson` → `src/intellect_inbox/courses/course_row/CourseActions.jsx`
+    - `intellectinbox/testFullProcess`, `intellectinbox/learnAnythingNow` → `src/intellect_inbox/components/buttons/AdHocLessonButton.jsx`
+
+### Quick Test
+1) Set `.env`:
+   - Legacy: `REACT_APP_USE_NEW_SUPABASE=false`
+   - New: `REACT_APP_USE_NEW_SUPABASE=true`
+2) `npm start` and verify:
+   - Auth, profile load, lessons list, lesson open, storage downloads, chat, and course creation.
+
+## Centralized Auth (Mumapps-Auth) Toggle
+
+You can toggle between Supabase Auth (legacy) and centralized Mumapps-Auth without code changes.
+
+- __Toggle__: `REACT_APP_USE_CENTRALIZED_AUTH` set to `'true'` (centralized) or `'false'` (Supabase Auth).
+- __Env Vars__:
+  - `REACT_APP_USE_CENTRALIZED_AUTH=true|false`
+  - `REACT_APP_AUTH_URL` and `REACT_APP_AUTH_PORT` for local/staging auth service (e.g., `localhost` + `5432`). If a full URL is provided in `REACT_APP_AUTH_URL` (e.g., `http://localhost:5432` or `https://auth.mumma.co`), it will be respected. If `REACT_APP_AUTH_URL` is not set, the default origin is `https://auth.mumma.co`.
+  - Port omission rule: when the effective port is 80 or 443, it is omitted from the URL.
+- __Core Files__:
+  - `src/auth/CentralizedAuthLib.js` — checks auth status via centralized service, handles sign-in/out redirects.
+  - `src/auth/useCentralizedAuth.js` — React hook exposing `{ isAuthenticated, user, hasIntellectAccess, loading, signIn, signOut }`.
+  - `src/App.jsx` — `ProtectedRoute` gates routes using centralized auth when toggle is on, including premium access gating.
+  - `src/intellect_inbox/context/IntellectInboxContext.jsx` — auto-creates a default `ii_users` row on first login (Supabase session path).
+
+### Test Centralized Auth
+1) Add to `.env.local`:
+   - `REACT_APP_USE_CENTRALIZED_AUTH=true`
+   - Local dev example: `REACT_APP_AUTH_URL=localhost` and `REACT_APP_AUTH_PORT=5432`
+   - Staging/Prod example: `REACT_APP_AUTH_URL=https://auth.staging.mumma.co` (no port needed). If `REACT_APP_AUTH_URL` is omitted, the app will use `https://auth.mumma.co`.
+2) `npm start`.
+3) Navigate to a protected route. You should be prompted to sign in via centralized auth. After login:
+   - If subscription grants access to Intellect Inbox, protected content loads.
+   - If not, you’ll see a manage-subscription message.
+
+Note: The app still uses Supabase for data (profiles, lessons, storage). The centralized auth governs app access and session; data CRUD continues via the configured Supabase instance.
+
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
 ## Available Scripts
@@ -7,7 +58,7 @@ In the project directory, you can run:
 ### `npm start`
 
 Runs the app in the development mode.<br />
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+Open [http://localhost:5001](http://localhost:5001) to view it in the browser.
 
 The page will reload if you make edits.<br />
 You will also see any lint errors in the console.

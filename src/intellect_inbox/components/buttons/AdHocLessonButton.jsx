@@ -12,6 +12,8 @@ import { API_BASE_URL } from '../../../constants/constants';
 import { read_ii_user_posts_v2 } from '../../api/ii_user_posts';
 import limits from '../../../constants/limits';
 
+const useNewInstance = process.env.REACT_APP_USE_NEW_SUPABASE === 'true';
+
 function AdHocLessonButton({ buttonText="New Lesson!", ...props }) {
   const { inboxState, dispatch } = useIntellectInbox();
   const toast = useToast();
@@ -127,6 +129,9 @@ function AdHocLessonButton({ buttonText="New Lesson!", ...props }) {
       }
       send_url = API_BASE_URL + 'intellectinbox/learnAnythingNow';
     }
+
+    // include DB instance target for backend routing
+    data_to_send.dbInstance = useNewInstance ? 'new' : 'current';
 
     try {
       //Disable the button while sending emails

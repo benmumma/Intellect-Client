@@ -4,8 +4,10 @@ import { useIntellectInbox } from '../context/IntellectInboxContext';
 import ChatBox from './ChatBox';
 import TypingIndicator from '../components/visuals/TypingIndicator';
 
+const useNewInstance = process.env.REACT_APP_USE_NEW_SUPABASE === 'true';
+const bucketName = useNewInstance ? 'ii-chats' : 'ii_chats';
+
 async function fetchChatMessages(supabase, sessionId) {
-    const bucketName = 'ii_chats';
     const filePath = `chats/${sessionId}.json`;
     const cacheBuster = new Date().getTime();
 

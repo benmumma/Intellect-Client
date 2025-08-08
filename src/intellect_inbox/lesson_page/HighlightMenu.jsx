@@ -12,6 +12,8 @@ import {
 import { API_BASE_URL } from '../../constants/constants';
 import { useIntellectInbox } from '../context/IntellectInboxContext';
 
+const useNewInstance = process.env.REACT_APP_USE_NEW_SUPABASE === 'true';
+
 const HighlightMenu = ({lessonId, thisLesson}) => {
     const { inboxState, dispatch } = useIntellectInbox();
     const [isMenuVisible, setMenuVisible] = useState(false);
@@ -41,6 +43,7 @@ const HighlightMenu = ({lessonId, thisLesson}) => {
       sessionId:inboxState.live_session_id,
       version:thisLesson.version,
       userMessage:'z'+option_selected+'_'+selectedText,
+      dbInstance: useNewInstance ? 'new' : 'current',
     };
     try {
     const send_url = API_BASE_URL+'intellectinbox/chat'

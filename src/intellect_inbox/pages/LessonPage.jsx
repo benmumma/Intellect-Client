@@ -36,7 +36,8 @@ function LessonPage() {
 
     const navigate = useNavigate();
     const chatDisabled = inboxState.user_tier === 'standard' ? true : false;
-    const bucketName = 'ii_lessons';
+    const useNewInstance = process.env.REACT_APP_USE_NEW_SUPABASE === 'true';
+    const bucketName = useNewInstance ? 'ii-lessons' : 'ii_lessons';
 
     const thisCourse = coursesState.courses.find(course => course.id === thisLesson?.course_id);
     const courseName = thisCourse?.course_subject || '';

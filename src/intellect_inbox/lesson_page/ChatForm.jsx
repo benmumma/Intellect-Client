@@ -3,6 +3,8 @@ import { Text, Textarea, Button, Divider, HStack } from "@chakra-ui/react";
 import { useIntellectInbox } from '../context/IntellectInboxContext';
 import { API_BASE_URL } from '../../constants/constants';
 
+const useNewInstance = process.env.REACT_APP_USE_NEW_SUPABASE === 'true';
+
 async function sendMessageToChatEndpoint(userId, lessonId, version, sessionId, userMessage) {
     const fetch_url = API_BASE_URL + 'intellectinbox/chat'
     console.log('SessionID:', sessionId) 
@@ -11,7 +13,7 @@ async function sendMessageToChatEndpoint(userId, lessonId, version, sessionId, u
         headers: {
             'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ userId, lessonId, version, sessionId, userMessage }),
+        body: JSON.stringify({ userId, lessonId, version, sessionId, userMessage, dbInstance: useNewInstance ? 'new' : 'current' }),
     });
 
     const data = await response.json();

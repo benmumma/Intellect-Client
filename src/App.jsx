@@ -25,39 +25,54 @@ import PublicCoursePage from "./intellect_inbox/public/PublicCoursePage.jsx";
 import PublicDirectoryPage from "./intellect_inbox/public/PublicDirectoryPage.jsx";
 import ManageAccount from "./intellect_inbox/pages/ManageAccount.jsx";
 import SubscriptionSuccess from "./intellect_inbox/pages/SubscriptionSuccess.jsx";
+import useCentralizedAuth from './auth/useCentralizedAuth';
 
 
 const ProtectedRoute = ({ children }) => {
   const { inboxState, loadingSession, checkAuthStatus, iiSession } = useIntellectInbox();
   const [authChecked, setAuthChecked] = useState(false);
+  const useCentralized = process.env.REACT_APP_USE_CENTRALIZED_AUTH === 'true';
+  const { isAuthenticated: cAuthenticated, hasIntellectAccess, loading: cLoading, signIn: cSignIn } = useCentralizedAuth();
 
   useEffect(() => {
     const checkAuth = async () => {
-      if (!authChecked) {
+      if (!authChecked && !useCentralized) {
         await checkAuthStatus();
+        setAuthChecked(true);
+      } else if (!authChecked && useCentralized) {
+        // centralized hook performs its own initial check
         setAuthChecked(true);
       }
     };
 
     checkAuth();
-  }, [checkAuthStatus, authChecked]);
+  }, [checkAuthStatus, authChecked, useCentralized]);
 
-  if (loadingSession || !authChecked) {
-    // Show loading state while checking authentication
-    return <div>Loading...</div>;
+  if (!useCentralized) {
+    if (loadingSession || !authChecked) return <div>Loading...</div>;
+    if (!iiSession) return <Navigate to="/login" replace />;
+    if (iiSession && (!inboxState.user_id || inboxState.userStatus !== 'signed_in')) return <div>Loading user data...</div>;
+    return children;
   }
 
-  if (!iiSession) {
-    // Redirect to login page if there's no session
-    return <Navigate to="/login" replace />;
+  // Centralized auth flow
+  if (cLoading || !authChecked) return <div>Loading...</div>;
+  if (!cAuthenticated) {
+    return (
+      <div style={{ padding: 24 }}>
+        <p>You need to sign in to continue.</p>
+        <button onClick={() => cSignIn()}>Sign in</button>
+      </div>
+    );
   }
-
-  // If we have a session but user data hasn't been fetched yet, show loading
-  if (iiSession && (!inboxState.user_id || inboxState.userStatus !== 'signed_in')) {
-    return <div>Loading user data...</div>;
+  if (!hasIntellectAccess) {
+    return (
+      <div style={{ padding: 24 }}>
+        <p>This feature requires an Intellect Inbox or Full-Site subscription.</p>
+        <a href="https://www.mumma.co/manage-account" rel="noreferrer">Manage subscription</a>
+      </div>
+    );
   }
-
-  // If we have a session and user data, render the protected content
   return children;
 };
 

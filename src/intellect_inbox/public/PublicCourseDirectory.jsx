@@ -1,10 +1,7 @@
 import React, {useEffect, useState} from 'react';
 import { Box, Table, Thead, Tbody, Tr, Th, VStack, Text, useMediaQuery, Input, HStack} from '@chakra-ui/react';
-import MyHeader from '../../general/components/MyHeader';
-import Footer from '../../general/components/Footer';
 import { ii_supabase } from '../../constants/supabaseClient';
 import useColors from '../theming/useColors';
-import DirectoryRow from '../courses/directory_row/DirectoryRow';
 import PublicDirectoryRow from './PublicDirectoryRow';
 
 const PublicCourseDirectory = ({maxHeight = null}) => {

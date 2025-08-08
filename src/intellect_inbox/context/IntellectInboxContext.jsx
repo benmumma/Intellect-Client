@@ -1,11 +1,14 @@
 import React, { createContext, useState, useContext, useEffect, useReducer, useCallback } from 'react';
 import { ii_supabase } from '../../constants/supabaseClient';
-import { read_ii_user } from '../api/ii_users';
+import { read_ii_user, upsert_ii_user } from '../api/ii_users';
 import { read_ii_subjects } from '../api/ii_subjects';
 import { read_ii_audiences } from '../api/ii_audiences';
 import { read_ii_user_posts_v2 } from '../api/ii_user_posts';
 import inboxReducer from '../context/inboxReducer';
 import initialState from '../context/initialState';
+import { format_dow_schedule } from '../helpers/reception_days';
+import useCentralizedAuth from '../../auth/useCentralizedAuth';
+import { REACT_APP_USE_CENTRALIZED_AUTH } from '../../constants/constants';
 
 const IntellectInboxContext = createContext();
 
@@ -19,20 +22,35 @@ export const IntellectInboxProvider = ({ children }) => {
     const [userDataFetched, setUserDataFetched] = useState(false);
     const [userLessonsFetched, setUserLessonsFetched] = useState(false);
     const [chatMessages, setChatMessages] = useState({});
+    const useCentralized = REACT_APP_USE_CENTRALIZED_AUTH;
+    const { isAuthenticated: cAuthenticated, user: cUser, loading: cLoading } = useCentralizedAuth();
 
     
     // Initialize session
     useEffect(() => {
+        if (useCentralized) {
+            // Mirror centralized auth state into iiSession shape
+            if (cAuthenticated && cUser) {
+                setIISession({ user: { id: cUser.id, email: cUser.email } });
+                setUserLoaded(true);
+            } else {
+                setIISession(null);
+                setUserLoaded(false);
+            }
+            setLoadingSession(cLoading);
+            return; // no Supabase auth listeners when centralized auth is on
+        }
+
         let authListener;
 
         checkAuthStatus();
-    
+
         const initSession = async () => {
             console.log('Trying to initiate a session');
-    
+
             try {
                 const { data: { session }, error } = await ii_supabase.auth.getSession();
-    
+
                 if (session) {
                     console.log('Session found:', session);
                     setIISession(session);
@@ -43,12 +61,12 @@ export const IntellectInboxProvider = ({ children }) => {
             } catch (error) {
                 console.error('Unexpected error fetching session:', error);
             }
-    
+
             setLoadingSession(false);
         };
-    
+
         initSession();
-    
+
         authListener = ii_supabase.auth.onAuthStateChange(async (_event, session) => {
             console.log('Auth state changed:', _event);
             if (_event === 'SIGNED_OUT') {
@@ -69,13 +87,13 @@ export const IntellectInboxProvider = ({ children }) => {
                 checkAuthStatus();
             }
         });
-    
+
         return () => {
             if (authListener && authListener.data && authListener.data.subscription) {
                 authListener.data.subscription.unsubscribe();
             }
         };
-    }, []);
+    }, [useCentralized, cAuthenticated, cUser, cLoading]);
 
     const fetchUserData = useCallback(async () => {
        // console.log('fetchUserData user data');
@@ -85,11 +103,31 @@ export const IntellectInboxProvider = ({ children }) => {
         
         try {
             //console.log('fetchUserData in try');
-            const [userData, subjects, audiences] = await Promise.all([
+            let [userData, subjects, audiences] = await Promise.all([
                 read_ii_user(iiSession.user.id),
                 read_ii_subjects(),
                 read_ii_audiences(),
             ]);
+
+            // If this is the user's first visit, create a default ii_users row
+            if (!userData || userData.length === 0) {
+                const defaultUserRow = {
+                    user_id: iiSession.user.id,
+                    email_address: iiSession.user.email,
+                    user_tier: 'free',
+                    has_set_password: false,
+                    current_audience: 3,
+                    current_subject: 123,
+                    timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+                    reception_time: 7,
+                    dow_schedule: format_dow_schedule([], null),
+                    user_name: iiSession.user.email ? iiSession.user.email.split('@')[0] : 'Anonymous',
+                };
+                const { result } = await upsert_ii_user(defaultUserRow);
+                if (result === 'success') {
+                    userData = await read_ii_user(iiSession.user.id);
+                }
+            }
 
             let current_subject_object = {};
             let current_audience_object = {};
@@ -165,6 +203,25 @@ export const IntellectInboxProvider = ({ children }) => {
 
     const checkAuthStatus = useCallback(async () => {
         try {
+          if (useCentralized) {
+            if (cAuthenticated && cUser) {
+              setIISession({ user: { id: cUser.id, email: cUser.email } });
+              setUserLoaded(true);
+              if (!userDataFetched) {
+                await fetchUserData();
+              }
+              if (!userLessonsFetched) {
+                await fetchUserLessons();
+              }
+            } else {
+              setIISession(null);
+              setUserLoaded(false);
+              dispatch({ type: 'RESET_STATE' });
+            }
+            setLoadingSession(false);
+            return;
+          }
+
           const { data: { session }, error } = await ii_supabase.auth.getSession();
           if (session) {
             setIISession(session);
@@ -185,7 +242,7 @@ export const IntellectInboxProvider = ({ children }) => {
           console.error('Error checking auth status:', error);
           setLoadingSession(false);
         }
-      }, [fetchUserData, fetchUserLessons, userDataFetched, userLessonsFetched]);
+      }, [useCentralized, cAuthenticated, cUser, fetchUserData, fetchUserLessons, userDataFetched, userLessonsFetched]);
 
 
     useEffect(() => {

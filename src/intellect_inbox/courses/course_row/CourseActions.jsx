@@ -10,6 +10,8 @@ import { FaPlayCircle, FaPauseCircle, FaArchive, FaShare } from 'react-icons/fa'
 import limits from '../../../constants/limits';
 import { read_ii_courses } from '../../api/ii_courses';
 
+const useNewInstance = process.env.REACT_APP_USE_NEW_SUPABASE === 'true';
+
 const CourseActions = ({ course, ...props }) => {
     const [nextLessonDisabled, setNextLessonDisabled] = useState(true);
     const [nextLessonLoading, setNextLessonLoading] = useState(false);
@@ -135,6 +137,7 @@ const CourseActions = ({ course, ...props }) => {
             data_to_send.next_lesson= current_lesson + 1 <= course.course_length ? course.curriculum.Schedule[current_lesson + 1] : null
         }
 
+        data_to_send.dbInstance = useNewInstance ? 'new' : 'current';
 
         try {
             const response = await fetch(`${API_BASE_URL}intellectinbox/createNextLesson`, {

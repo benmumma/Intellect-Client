@@ -3,6 +3,8 @@ import { useToast } from '@chakra-ui/react';
 import {  ii_supabase } from '../../constants/supabaseClient';
 import { useNavigate } from 'react-router-dom';
 import { useIntellectInbox } from '../../intellect_inbox/context/IntellectInboxContext';
+import { REACT_APP_USE_CENTRALIZED_AUTH } from '../../constants/constants';
+import centralizedAuth from '../../auth/CentralizedAuthLib';
 
 const useAuth = () => {
     const [loading, setLoading] = useState(false);
@@ -12,8 +14,12 @@ const useAuth = () => {
     const navigate = useNavigate();
 
     const signInWithOtp = async (email, app_name = null) => {
+        if (REACT_APP_USE_CENTRALIZED_AUTH) {
+            centralizedAuth.signIn();
+            return { user: null, error: null };
+        }
         setLoading(true);
-        //const supabaseClient = isIntellectInbox ? ii_supabase : supabase;
+
         let supabaseClient = null;
         let redirectUrl = null
         if (app_name === 'intellectinbox') {
@@ -21,10 +27,8 @@ const useAuth = () => {
             redirectUrl = 'https://www.intellect.email/setpassword/intellectinbox';
         }
         else {
-            //Throw error
             console.error('Error signing in:', 'App name not provided');
         }
-
 
         const { user, error } = await supabaseClient.auth.signInWithOtp({ 
           email,
@@ -32,7 +36,7 @@ const useAuth = () => {
             emailRedirectTo: redirectUrl
           }
          });
-    
+
         if (error) {
           console.error('Error signing in:', error);
           toast({
@@ -43,7 +47,6 @@ const useAuth = () => {
             isClosable: true,
           });
         } else {
-          
           toast({
             title: "Check your inbox!",
             description: "We've sent you a sign-in link to your email address!",
@@ -53,14 +56,11 @@ const useAuth = () => {
           });
         }
         setLoading(false);
-        // If user is not returned immediately, listen for an auth event
         const { data: authListener } = supabaseClient.auth.onAuthStateChange((event, session) => {
             if (event === 'SIGNED_IN') {
-              // After a successful sign in, call the createUser function.
               console.log('Initializing II Account');
-              //createUser(session.user);
               setLoading(false);
-              authListener.unsubscribe(); // Dispose of the listener after the user is created
+              authListener.unsubscribe(); 
             }
           });
 
@@ -68,21 +68,24 @@ const useAuth = () => {
       };
 
       const signOut = async (app_name = null) => {
+        if (REACT_APP_USE_CENTRALIZED_AUTH) {
+            await centralizedAuth.signOut();
+            return { error: null };
+        }
         setLoading(true);
+
         let supabaseClient = null;
         if (app_name === 'intellectinbox') {
             supabaseClient = ii_supabase;
         }
         else {
-            //Throw error
             console.error('Error signing in:', 'App name not provided');
         }
 
         const { error } = await supabaseClient.auth.signOut();
-    
+
         if (!error) {
             if(app_name === 'intellectinbox') {
-
                 inboxDispatch({ type: 'INBOX_SIGN_OUT' });
                 toast({
                     title: "Signed Out",
@@ -92,7 +95,6 @@ const useAuth = () => {
                     isClosable: true,
                 });
             }
-          //isIntellectInbox ? dispatchInbox({ type: 'INBOX_SIGN_OUT' }) : dispatchForward({ type: 'FORWARD_SIGN_OUT' });
         } else {
           console.error('Error signing out:', error.message);
         }
@@ -100,13 +102,17 @@ const useAuth = () => {
       };
 
       const loginWithPassword = async ( email, password,app_name=null, redirect_url=null) => {
+        if (REACT_APP_USE_CENTRALIZED_AUTH) {
+            centralizedAuth.signIn();
+            return { data: null, error: null };
+        }
         setLoading(true);
+
         let supabaseClient = null;
         if (app_name === 'intellectinbox') {
             supabaseClient = ii_supabase;
         }
         else {
-            //Throw error
             console.error('Error signing in:', 'App name not provided');
         }
 

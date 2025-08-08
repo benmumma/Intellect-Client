@@ -6,6 +6,8 @@ import { insert_ii_courses } from '../../api/ii_courses.js';
 import { upsert_ii_user_courses } from '../../api/ii_user_courses.js';
 import { API_BASE_URL } from '../../../constants/constants.js';
 
+const useNewInstance = process.env.REACT_APP_USE_NEW_SUPABASE === 'true';
+
 const CourseCreationForm = ({onClose, initialState}) => {
     const { inboxState, dispatch } = useIntellectInbox();
     const { state:courseState, dispatch:courseDispatch } = useCourses();
@@ -195,7 +197,8 @@ const CourseCreationForm = ({onClose, initialState}) => {
                 course_level: level_to_send_chat,
                 teacher_persona: instructor_to_send_chat,
                 course_details: course_details_to_send,
-                language: courseLanguage
+                language: courseLanguage,
+                dbInstance: useNewInstance ? 'new' : 'current',
             };
             
             const ai_lesson_response = await fetch(send_url, {

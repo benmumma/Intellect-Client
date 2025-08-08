@@ -1,5 +1,3 @@
-
-
 import React, {useEffect} from 'react';
 import { useToast, Text, Select, HStack, Button, useDisclosure, Modal, ModalOverlay, ModalContent, ModalHeader, ModalCloseButton, ModalBody, ModalFooter, Input, Divider, Textarea } from "@chakra-ui/react";
 import { useIntellectInbox } from '../context/IntellectInboxContext';
@@ -8,6 +6,9 @@ import { ii_supabase } from '../../constants/supabaseClient';
 import SubjectSelector from '../components/selectors/SubjectSelector';
 import AudienceSelector from '../components/selectors/AudienceSelector';
 
+// Select bucket name based on env toggle
+const useNewInstance = process.env.REACT_APP_USE_NEW_SUPABASE === 'true';
+const bucketName = useNewInstance ? 'ii-lessons' : 'ii_lessons';
 
 function AdminEdit({lesson}) {
     const { inboxState, dispatch } = useIntellectInbox(); 
@@ -28,7 +29,6 @@ function AdminEdit({lesson}) {
 
     const update_lesson_data = async () => {
         console.log('Updating lesson data');
-        const bucketName = 'ii_lessons';
         const shortFilePath = lesson.post_url.split('/' + bucketName + '/')[1];
         console.log(shortFilePath);
         const newLessonText = lessonText;
@@ -122,7 +122,6 @@ function AdminEdit({lesson}) {
 
     async function fetchLessonData(thisLesson, cacheBust=false) {
         console.log('Fetching lesson data');
-        const bucketName = 'ii_lessons';
         console.log(thisLesson);
         if (!thisLesson) {
             return
