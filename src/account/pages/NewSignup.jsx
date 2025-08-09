@@ -7,11 +7,12 @@ import { Link as ReachLink, useParams } from 'react-router-dom';
 import { useIntellectInbox } from '../../intellect_inbox/context/IntellectInboxContext';
 
 import useAuth from '../hooks/useAuth';
+import { MANAGE_ACCOUNT_URL } from '../../constants/constants';
 
 
 const NewSignup = ({isSecret=false, app_override=null, showForward=true, showIntellectInbox = true}) => {
     const {app} = useParams();
-    const { signInWithOtp, signOut, loading } = useAuth();
+    const { signInWithOtp, loading } = useAuth();
     let app_code = app_override || "2";
     if (app === 'intellectinbox' || isSecret) {
         app_code = "2";
@@ -36,17 +37,8 @@ const NewSignup = ({isSecret=false, app_override=null, showForward=true, showInt
             await signInWithOtp(email, app_name);
     }
 
-    const handleSignout = async (app_name) => {
-        console.log('Signing out of '+app_name);
-        signOut(app_name);
-        if (app_name === 'intellectinbox') {
-            setIntellectInboxUser(null);
-        }
-        
-    }
-
     
-
+    
     return (
         <>
             <MyHeader />
@@ -78,7 +70,7 @@ const NewSignup = ({isSecret=false, app_override=null, showForward=true, showInt
                         )}
                         {value === "2" && intellectInboxUser && (
                             <VStack spacing={2}>
-                                <Text>You are already signed up for Intellect Inbox as {intellectInboxUser} (Not you? <Link onClick={() => handleSignout('intellectinbox')} color="teal" fontWeight="bold">Sign out</Link>)</Text>
+                                <Text>You are already signed up for Intellect Inbox as {intellectInboxUser} (<Link href={MANAGE_ACCOUNT_URL} color="teal" fontWeight="bold">Manage Account</Link>)</Text>
                                 <Link color="teal" fontWeight="bold" as={ReachLink} to="/intellectinbox">Go to Intellect Inbox</Link>
                             </VStack>
                         )}

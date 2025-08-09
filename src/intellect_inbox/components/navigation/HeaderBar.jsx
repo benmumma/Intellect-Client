@@ -1,5 +1,5 @@
 import React, {useState, useEffect} from 'react';
-import { Box, Flex, Text, HStack, Image, VStack, Menu, MenuButton, MenuList, MenuItem, IconButton, Link, useDisclosure, useToast} from '@chakra-ui/react';
+import { Box, Flex, Text, HStack, Image, VStack, Menu, MenuButton, MenuList, MenuItem, IconButton, Link, useDisclosure} from '@chakra-ui/react';
 import { useIntellectInbox } from '../../context/IntellectInboxContext.jsx';
 import { FaCog } from 'react-icons/fa';
 import { AiFillClockCircle } from 'react-icons/ai';
@@ -8,16 +8,12 @@ import PremiumSchedulerModal from '../modals/PremiumSchedulerModal.jsx';
 import EditSettingsModal from '../modals/EditSettingsModal.jsx';
 import AdHocLessonButton from '../buttons/AdHocLessonButton.jsx';
 import { Link as RouterLink } from 'react-router-dom';
-import { ii_supabase } from '../../../constants/supabaseClient.js';
-import useCentralizedAuth from '../../../auth/useCentralizedAuth.js';
-import { REACT_APP_USE_CENTRALIZED_AUTH } from '../../../constants/constants.js';
+import { MANAGE_ACCOUNT_URL } from '../../../constants/constants.js';
 import { format_hour } from '../../helpers/datetimehelpers.js';
 import gh from '../../helpers/generic.js'
 
 const HeaderBar = ({ values }) => {
-    const toast = useToast();
-    const { inboxState, dispatch } = useIntellectInbox();
-    const { signOut } = useCentralizedAuth();
+    const { inboxState } = useIntellectInbox();
     const { isOpen, onOpen, onClose } = useDisclosure();
     const { isOpen: isPremiumOpen, onOpen: onPremiumOpen, onClose: onPremiumClose } = useDisclosure();
     const [parameterList, setParameterList] = useState({});
@@ -29,34 +25,6 @@ const HeaderBar = ({ values }) => {
         setParameterList(parameter_list);
         onOpen();
     }
-
-    const handleSignout = async () => {
-        try {
-          if (REACT_APP_USE_CENTRALIZED_AUTH) {
-            await signOut();
-          } else {
-            const { error } = await ii_supabase.auth.signOut();
-            if (error) throw error;
-          }
-          toast({
-            title: 'Signed Out',
-            description: 'You have been signed out',
-            status: 'success',
-            position: 'top',
-            isClosable: true,
-          });
-          dispatch({ type: 'INBOX_SIGN_OUT' });
-        } catch (error) {
-          toast({
-            title: 'Error',
-            description: 'Error signing out',
-            status: 'error',
-            position: 'top',
-            isClosable: true,
-          });
-          console.error(error);
-        }
-    };
 
    const [currentSubject, setCurrentSubject] = useState('');
     const [currentAudience, setCurrentAudience] = useState('');
@@ -91,7 +59,7 @@ const HeaderBar = ({ values }) => {
                 }
                 
                 </HStack>
-                {inboxState.user_tier === 'admin' && <Link as={RouterLink} to="/manage" color="white">{`Manage Account (${gh.capitalize(inboxState.user_tier)} Tier)`}</Link>}
+                {inboxState.user_tier === 'admin' && <Link as="a" href={MANAGE_ACCOUNT_URL} color="white">Manage Account</Link>}
                 
                 </VStack>
             </HStack>
@@ -143,7 +111,7 @@ const HeaderBar = ({ values }) => {
                         </>
                         }
                         <MenuItem onClick={onPremiumOpen}><HStack><AiFillClockCircle /><Text>Vary Schedule By Day</Text></HStack></MenuItem>
-                        <MenuItem onClick={handleSignout}><HStack><Text>Sign Out</Text></HStack></MenuItem>
+                        <MenuItem as="a" href={MANAGE_ACCOUNT_URL}><HStack><Text>Manage Account</Text></HStack></MenuItem>
 
                     </MenuList>
                 </Menu>

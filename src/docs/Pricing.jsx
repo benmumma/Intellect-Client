@@ -1,7 +1,8 @@
 import React from 'react';
-import { Box, Heading, Text, VStack, Center, useMediaQuery, HStack, UnorderedList, ListItem, useColorModeValue, Divider} from '@chakra-ui/react';
+import { Box, Heading, Text, VStack, Center, useMediaQuery, HStack, UnorderedList, ListItem, useColorModeValue, Divider, Link} from '@chakra-ui/react';
 import MyHeader from '../general/components/MyHeader';
 import Footer from '../general/components/Footer';
+import { MANAGE_ACCOUNT_URL } from '../constants/constants.js';
 
 
 
@@ -18,7 +19,7 @@ const Pricing = () => {
                         <VStack>
                             
                         <Box
-                        width="100vw" // Modify this line
+                        width="100vw" 
                         height={isMobile ? '200px' : '200px'}
                         position="relative"
                     >
@@ -30,8 +31,8 @@ const Pricing = () => {
                             backgroundImage: "url('/ii/ii_hero_v1_min.png')",
                             backgroundSize: 'cover',
                             backgroundPosition: 'left',
-                            opacity: 0.7, // Adjust opacity here
-                            zIndex: -1, // Make sure this stays behind the content
+                            opacity: 0.7, 
+                            zIndex: -1, 
                           }}
                           />
                         <VStack
@@ -84,7 +85,7 @@ const Pricing = () => {
                         <ListItem>Access to our public directory of courses: over 50 available and counting!</ListItem>
                         <ListItem>Take up to one course at a time.</ListItem>
                         <ListItem>Ability to build one personalized course - get any subject taught to you by an expert.</ListItem>
-                        <ListItem>Additional personalized courses and course slots available for one-time purchase.</ListItem>
+                        {/* Legacy one-time purchases removed under centralized premium */}
                     </UnorderedList>
                     <Text>&nbsp;</Text>
                     <Text>&nbsp;</Text>
@@ -106,12 +107,15 @@ const Pricing = () => {
                         <ListItem>Gain early access to our new features!</ListItem>
                     </UnorderedList>
                     <Divider my={4}/>
-                    <Text textAlign="center" my={4} fontSize="xl" fontWeight="bold">Coming Soon @ $6.99 per month</Text>
+                    <Text textAlign="center" my={4} fontSize="xl" fontWeight="bold">Only $1.99 per month</Text>
                     </Box>
                 
             </HStack>
-            <Text my={4} fontSize="xl" fontStyle="oblique">Upgrade to Premium at any time via your account page!</Text>
-            <Text>Pay-as-you-go options available as well from $4.99/course.</Text>
+            <Text my={4} fontSize="xl" fontStyle="oblique">
+                Upgrade to Premium for $1.99/month via your{' '}
+                <Link href={MANAGE_ACCOUNT_URL} color="teal.500" isExternal>Manage Account</Link>.
+            </Text>
+
             </Center>
             <Box height="15vh"></Box>
             <Footer />

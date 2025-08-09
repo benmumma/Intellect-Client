@@ -3,7 +3,7 @@ import { useNavigate, Link as ReachLink } from 'react-router-dom';
 import { useToast, useMediaQuery, useColorModeValue } from '@chakra-ui/react';
 import { useIntellectInbox } from './context/IntellectInboxContext';
 import useCentralizedAuth from '../auth/useCentralizedAuth';
-import { REACT_APP_USE_CENTRALIZED_AUTH } from '../constants/constants';
+import { REACT_APP_USE_CENTRALIZED_AUTH, MANAGE_ACCOUNT_URL } from '../constants/constants';
 import useAuth from '../account/hooks/useAuth';
 import MyHeader from '../general/components/MyHeader';
 import Footer from '../general/components/Footer';
@@ -24,7 +24,7 @@ function IntellectInboxMain() {
   const { isAuthenticated: cAuthenticated } = useCentralizedAuth();
   const navigate = useNavigate();
   const [isSignup, setIsSignup] = useState(true);
-  const { signInWithOtp, signOut } = useAuth();
+  const { signInWithOtp } = useAuth();
 
   const toast = useToast();
   const [isMobile] = useMediaQuery("(max-width: 600px)");
@@ -45,23 +45,6 @@ function IntellectInboxMain() {
         title: "Error",
         description: 'Error signing up - please check back soon!',
         status: "error",
-        position: 'top',
-        isClosable: true,
-      });
-    }
-  };
-
-  const handleSignOut = async () => {
-    const { error } = await signOut('intellectinbox');
-    if (!error) {
-      dispatch({ type: 'INBOX_SIGN_OUT' });
-      dispatch({ type: 'RESET_STATE' });
-      navigate('/');
-    } else {
-      toast({
-        title: 'Error',
-        description: 'Error signing out',
-        status: 'error',
         position: 'top',
         isClosable: true,
       });
@@ -161,7 +144,7 @@ function IntellectInboxMain() {
               {/*<Heading as="h2" size="md" mt={2}>My Lessons</Heading>
               <PastLessons />*/}
               <Divider py={10} />
-              <Button my={2} onClick={handleSignOut} colorScheme="red">Sign Out</Button>
+              <Button my={2} as="a" href={MANAGE_ACCOUNT_URL} colorScheme="teal">Manage Account</Button>
             </>
           )}
         </VStack>

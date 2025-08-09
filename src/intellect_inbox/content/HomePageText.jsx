@@ -1,7 +1,7 @@
-
 import React from 'react';
 import { Box, VStack, Center, Heading, Button, Divider, Text, Image, UnorderedList, ListItem, Link } from '@chakra-ui/react';
 import useColors from '../theming/useColors';
+import { MANAGE_ACCOUNT_URL } from '../../constants/constants.js';
 
 const HomePageText = () => {
     const colors = useColors();
@@ -35,7 +35,10 @@ const HomePageText = () => {
                       <Divider my={4} borderColor="teal" width="50%" />
                       <UnorderedList px={2} spacing={2}>
                         <ListItem fontWeight="bold">Our daily lessons and public course catalog are free, and always will be!</ListItem>
-                        <ListItem>You can build 1 personalized course for free. After that - you can either purchase credits for $4.99 per course, or subscribe to our premium plan for $6.99/mo!</ListItem>
+                        <ListItem>
+                          You can build 1 personalized course for free. Upgrade to our Premium plan for <b>$1.99/month</b> to unlock all premium features!
+                          {' '}<Link href={MANAGE_ACCOUNT_URL} color="teal.500" isExternal>Manage Account</Link>
+                        </ListItem>
                       </UnorderedList>
                     </VStack>
   

@@ -35,7 +35,7 @@ function LessonPage() {
     //const [isMidScreen] = useMediaQuery("(max-width: 72em)");
 
     const navigate = useNavigate();
-    const chatDisabled = inboxState.user_tier === 'standard' ? true : false;
+    const chatDisabled = !(inboxState.user_tier === 'premium' || inboxState.user_tier === 'admin');
     const useNewInstance = process.env.REACT_APP_USE_NEW_SUPABASE === 'true';
     const bucketName = useNewInstance ? 'ii-lessons' : 'ii_lessons';
 

@@ -24,7 +24,7 @@ const TermsOfService = ({session}) => {
             Software Update: The Software updates occur periodically.
             </Text>
             <Text>
-            Supported API: The APIs are used within the app and the website, including Stripe.
+            Supported API: The APIs are used within the app and the website, including third-party payment processors.
             </Text>
             <Heading as="h3" size="md" my={2}>
             Internet Connectivity/Delays: 
@@ -52,7 +52,7 @@ const TermsOfService = ({session}) => {
 
             <Heading as="h3" size="md" my={2}>Payments and Refund Policy</Heading>
             <Text>
-            All payments for services are processed through Stripe. Mumma Labs is not responsible for any delays in payment processing due to Stripe's policies or procedures in providing its services. Personal Check with Bankers Card, all major Credit/Debit Cards are all acceptable methods of payment. Payment for any Mumma Labs service(s) is due in full within thirty days of the date that service is provided. All goods remain the property of the Company until paid for in full. Monies that remain outstanding by the due date will incur. The outstanding balance until such time as the balance is paid in full and final settlement. In such circumstances, you shall be liable for any and all additional administrative and/or court costs. Requests for refunds must be made only through email to forward@mumma.co. Refunds may be offered solely at Mumma Labs's discretion. In the event Mumma Labs offers the Client a refund, processing may take at least 7 business days.
+            All subscription management and payments are handled via our centralized Mumapps-Auth system and processed by trusted third-party payment processors. We do not store card details on our servers. Mumma Labs is not responsible for any delays attributable to third-party payment processors. Requests for refunds must be made only through email to forward@mumma.co. Refunds may be offered solely at Mumma Labs's discretion. In the event Mumma Labs offers the Client a refund, processing may take at least 7 business days.
             </Text>
             <Text>
             Mumma Labs or the Client may terminate any Services Agreement at any time and for any reason. Mumma Labs will not offer any refund for any portion of a Service(s) Mumma Labs has stated preparing or providing if the Client terminates the Services Agreement.

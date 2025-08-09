@@ -3,6 +3,9 @@ import { useLocation } from 'react-router-dom';
 import { ii_supabase } from '../../constants/supabaseClient';
 import MyHeader from '../../general/components/MyHeader';
 import Footer from '../../general/components/Footer';
+// DEPRECATED: Subscription success is handled by centralized Mumapps-Auth. This page remains for archival only.
+import { Box, Text, Link } from '@chakra-ui/react';
+import { MANAGE_ACCOUNT_URL } from '../../constants/constants';
 
 const SubscriptionSuccess = () => {
   const [status, setStatus] = useState('loading');
@@ -50,6 +53,11 @@ const SubscriptionSuccess = () => {
   return (
     <>
     <MyHeader />
+    <Box bg="yellow.50" border="1px solid" borderColor="yellow.200" p={4} borderRadius="md" m={4}>
+      <Text fontWeight="bold">This page has moved</Text>
+      <Text>Subscription confirmations and billing are now handled in our centralized portal.</Text>
+      <Link href={MANAGE_ACCOUNT_URL} isExternal color="teal.500">Open Manage Account</Link>
+    </Box>
     <div>
       <h1>Subscription Successful!</h1>
       <p>Thank you for subscribing. Your premium features are now active!</p>

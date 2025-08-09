@@ -182,7 +182,7 @@ const PremiumScheduler = ({onClose}) => {
                     <SubjectSelector  width="100%" isDisabled={!daysChosen[index]} subjects={subjects} currentSubject={subjectsChosen} setCurrentSubject={setSubjectsChosen} index={index} mode="array_set"/>
                     {!showCustom[index] && 
                     <Tooltip label={is_premium ? "Create a custom subject on exactly what you want to learn!" : "Only premium members can create custom subjects!"}>
-                    <Button  width="100%" colorScheme="teal" size="xs" variant="outline" onClick={() => handleCustomClick(index)} isDisabled={user_tier === 'standard'}>
+                    <Button  width="100%" colorScheme="teal" size="xs" variant="outline" onClick={() => handleCustomClick(index)} isDisabled={!is_premium}>
                         Build Custom Topic
                         </Button>
                         </Tooltip>}

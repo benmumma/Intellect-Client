@@ -2,16 +2,17 @@ const limits = {
     'free':{
         'weekly_lessons':5,
         'active_courses':1,
-        'weekly_course_lessons':3,
+        'weekly_course_lessons':7,
         'personalized_courses':1,
         'cooldown':24,
     },
+    // Deprecated: 'standard' tier now treated as 'free'
     'standard':{
-        'weekly_lessons':7,
-        'active_courses':3,
-        'weekly_course_lessons':5,
-        'personalized_courses':10,
-        'cooldown':6,
+        'weekly_lessons':5,
+        'active_courses':1,
+        'weekly_course_lessons':7,
+        'personalized_courses':1,
+        'cooldown':24,
     },
     'premium':{
         'weekly_lessons':7,

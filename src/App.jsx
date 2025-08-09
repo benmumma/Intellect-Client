@@ -23,9 +23,8 @@ import { useIntellectInbox } from "./intellect_inbox/context/IntellectInboxConte
 import PasswordResetRequest from "./account/components/PasswordResetRequest.jsx";
 import PublicCoursePage from "./intellect_inbox/public/PublicCoursePage.jsx";
 import PublicDirectoryPage from "./intellect_inbox/public/PublicDirectoryPage.jsx";
-import ManageAccount from "./intellect_inbox/pages/ManageAccount.jsx";
-import SubscriptionSuccess from "./intellect_inbox/pages/SubscriptionSuccess.jsx";
 import useCentralizedAuth from './auth/useCentralizedAuth';
+import { MANAGE_ACCOUNT_URL } from "./constants/constants.js";
 
 
 const ProtectedRoute = ({ children }) => {
@@ -69,7 +68,7 @@ const ProtectedRoute = ({ children }) => {
     return (
       <div style={{ padding: 24 }}>
         <p>This feature requires an Intellect Inbox or Full-Site subscription.</p>
-        <a href="https://www.mumma.co/manage-account" rel="noreferrer">Manage subscription</a>
+        <a href={MANAGE_ACCOUNT_URL} rel="noreferrer">Manage subscription</a>
       </div>
     );
   }
@@ -101,8 +100,6 @@ function App() {
                 </ProtectedRoute>
               }
             />
-            <Route path="/manage" element={<ProtectedRoute><ManageAccount /></ProtectedRoute>} />
-            <Route path="/success" element={<ProtectedRoute><SubscriptionSuccess /></ProtectedRoute>} />
             {/* Public Pages */}
             <Route path="/course/:course_id" element={<PublicCoursePage />} />
             <Route path="/courses" element={<PublicDirectoryPage />} />

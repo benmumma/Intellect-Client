@@ -15,7 +15,7 @@ import CurriculumTable from '../components/tables/CurriculumTable';
 import RatingVisualizer from '../components/visuals/RatingVisualizer';
 import { useIntellectInbox } from '../context/IntellectInboxContext';
 import { useUserCourses } from '../actions/useUserCourses';
-
+import { MANAGE_ACCOUNT_URL } from '../../constants/constants.js';
 
 const PublicCoursePage = () => {
     const { course_id } = useParams();
@@ -148,7 +148,7 @@ const PublicCoursePage = () => {
                     <Text>They can be extremely tailored and focused! You choose the subject, the length, the teacher, the language, and more!</Text>
                     <Text>You can even describe your goals for the course, specific circumstances, and what you already know. The AI will tailor the course around that!</Text>
                     <Divider py={2} />
-                    <Text fontStyle="oblique">* Free users can create up to {limits.free.personalized_courses} personalized course. After that, you can either purchase course credits or subscribe to create more!</Text>
+                    <Text fontStyle="oblique">* Free users can create up to {limits.free.personalized_courses} personalized course. Upgrade to Premium for <b>$1.99/month</b> to create more. <Link href={MANAGE_ACCOUNT_URL} color="teal.500" isExternal>Manage Account</Link></Text>
                 </VStack>
                 </HStack>
                 <PublicEnrollModal isOpen={isOpen} onClose={onClose} course={courseData} />

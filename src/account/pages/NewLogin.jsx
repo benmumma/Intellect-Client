@@ -8,6 +8,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 
 import IntellectLoginForm from '../components/IntellectLoginForm';
 import useAuth from '../hooks/useAuth';
+import { MANAGE_ACCOUNT_URL } from '../../constants/constants';
 
 const NewLogin = ({arrival_url=false}) => {
   const {app} = useParams();
@@ -21,13 +22,9 @@ const NewLogin = ({arrival_url=false}) => {
     const {inboxState, inboxDispatch} = useIntellectInbox();
     const intellectInboxUser = inboxState?.email_address || null;
 
-    const { signOut, loginWithPassword } = useAuth();
+    const { loginWithPassword } = useAuth();
 
     const handleChange = (val) => setValue(val);
-
-    const handleSignoutIntellect = async () => {
-        signOut('intellectinbox');
-      }
 
     return (
         <>
@@ -56,7 +53,7 @@ const NewLogin = ({arrival_url=false}) => {
             )}
             {value === "2" && intellectInboxUser && (
                 <VStack spacing={2}>
-                <Text>You are already logged in as {intellectInboxUser} (Not you? <Link color="teal" fontWeight="bold" onClick={handleSignoutIntellect}>Sign out</Link>)</Text>
+                <Text>You are already logged in as {intellectInboxUser} (<Link color="teal" fontWeight="bold" href={MANAGE_ACCOUNT_URL}>Manage Account</Link>)</Text>
                 <Link color="teal" fontWeight="bold" as={ReachLink} to="/intellectinbox">Go to Intellect Inbox</Link>
                 </VStack>
             )}

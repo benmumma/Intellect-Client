@@ -7,7 +7,8 @@ import {Link as RouterLink} from 'react-router-dom';
 import { useIntellectInbox } from '../context/IntellectInboxContext';
 import limits from '../../constants/limits';
 import axios from 'axios';
-import { API_BASE_URL } from '../../constants/constants';
+// DEPRECATED: This page is archived. Subscription management is centralized via Mumapps-Auth.
+import { API_BASE_URL, MANAGE_ACCOUNT_URL } from '../../constants/constants';
 import { loadStripe } from '@stripe/stripe-js';
 import gh from '../helpers/generic';
 
@@ -161,6 +162,12 @@ const ManageAccount = () => {
             <Center>
                 <Box p={8} maxWidth="800px" width="100%">
                     <Heading width="100%" textAlign="center" size="lg" mb={6}>Manage My Account</Heading>
+                    <Box bg="yellow.50" border="1px solid" borderColor="yellow.200" p={4} borderRadius="md" mb={6}>
+                        <Heading size="sm">This page has moved</Heading>
+                        <Text mt={2}>Subscription upgrades, billing, and cancellations are now handled in our centralized portal.</Text>
+                        <Link href={MANAGE_ACCOUNT_URL} isExternal color="teal.500">Open Manage Account</Link>
+                    </Box>
+
                     <VStack spacing={6} align="stretch">
                         <Box bg={colors.bg.contrast} boxShadow="lg" p={6} borderRadius="md">
                             <HStack width="100%" alignItems="flex-start" flexDir={isMobile ? 'column' : 'row'}>
@@ -210,7 +217,7 @@ const ManageAccount = () => {
                                 <Text>Loading subscription information...</Text>
                             ) : subscription.stripe_subscription_id ? (
                                 <>
-                                    <Text>Plan: {subscription.subscription_plan ? 'Premium' : 'Standard'}</Text>
+                                    <Text>Plan: {subscription.subscription_plan ? 'Premium' : 'Free'}</Text>
                                     <Text>Status: {gh.capitalize(subscription.subscription_status)}</Text>
                                     <Text>Next billing date: {new Date(subscription.current_period_end * 1000).toLocaleDateString()}</Text>
                                     <ButtonGroup as={Flex} flexDir={isMobile ? 'column' : 'row'}>
@@ -228,20 +235,9 @@ const ManageAccount = () => {
                             ) : (
                                 <>
                                     <Text>You are not currently subscribed to a premium plan.</Text>
-                                    <HStack width="100%" justifyContent="space-between">
-                                    <Button colorScheme="green" mt={4} onClick={() => handleSubscribe('monthly')} width="100%">
-                                        <VStack spacing={0}>
-                                            <Text>Premium (Monthly)</Text>
-                                            <Text fontSize="sm" fontWeight="normal">$6.99/month</Text>
-                                        </VStack>
+                                    <Button as={Link} href={MANAGE_ACCOUNT_URL} isExternal colorScheme="teal" mt={4} width="100%">
+                                        Manage Subscription in Portal
                                     </Button>
-                                    <Button colorScheme="green" mt={4} onClick={() => handleSubscribe('yearly')} width="100%">
-                                    <VStack spacing={0}>
-                                            <Text>Premium (Yearly)</Text>
-                                            <Text fontSize="sm" fontWeight="normal">$69.99/month</Text>
-                                        </VStack>
-                                    </Button>
-                                    </HStack>
                                 </>
                             )}
                         </Box>

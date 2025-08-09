@@ -23,7 +23,7 @@ export const IntellectInboxProvider = ({ children }) => {
     const [userLessonsFetched, setUserLessonsFetched] = useState(false);
     const [chatMessages, setChatMessages] = useState({});
     const useCentralized = REACT_APP_USE_CENTRALIZED_AUTH;
-    const { isAuthenticated: cAuthenticated, user: cUser, session: cSession, loading: cLoading } = useCentralizedAuth();
+    const { isAuthenticated: cAuthenticated, user: cUser, session: cSession, loading: cLoading, hasIntellectAccess } = useCentralizedAuth();
 
     
     // Initialize session
@@ -161,7 +161,7 @@ export const IntellectInboxProvider = ({ children }) => {
                 const defaultUserRow = {
                     user_id: iiSession.user.id,
                     email_address: iiSession.user.email,
-                    user_tier: 'free',
+                    user_tier: hasIntellectAccess ? 'premium' : 'free',
                     has_set_password: false,
                     current_audience: 3,
                     current_subject: 123,
@@ -174,6 +174,22 @@ export const IntellectInboxProvider = ({ children }) => {
                 const { result } = await create_ii_user_via_backend(defaultUserRow);
                 if (result === 'success') {
                     userData = await read_ii_user(iiSession.user.id);
+                }
+            }
+
+            // Sync user_tier with centralized access (except for admin)
+            if (useCentralized && userData && userData.length > 0) {
+                try {
+                    const currentTier = userData[0].user_tier;
+                    const targetTier = currentTier === 'admin' ? 'admin' : (hasIntellectAccess ? 'premium' : 'free');
+                    if (currentTier !== targetTier && currentTier !== 'admin') {
+                        const upsertRes = await upsert_ii_user({ user_id: iiSession.user.id, user_tier: targetTier });
+                        if (upsertRes?.result === 'success') {
+                            userData[0].user_tier = targetTier;
+                        }
+                    }
+                } catch (e) {
+                    console.warn('Failed to sync user_tier with centralized access', e);
                 }
             }
 
@@ -229,7 +245,7 @@ export const IntellectInboxProvider = ({ children }) => {
         } catch (error) {
             console.error("Failed to fetch data", error);
         }
-    }, [iiSession, userLoaded, dispatch]);
+    }, [iiSession, userLoaded, dispatch, hasIntellectAccess, useCentralized]);
 
     const fetchUserLessons = useCallback(async () => {
         //console.log('fetchUserLessons');
@@ -339,6 +355,26 @@ export const IntellectInboxProvider = ({ children }) => {
             }
         }
     }, [iiSession, userLoaded, userDataFetched, userLessonsFetched, fetchUserData, fetchUserLessons]);
+
+    // Keep user_tier in sync with centralized access changes after initial load
+    useEffect(() => {
+        if (!useCentralized) return;
+        if (!iiSession || !userLoaded) return;
+        // Determine desired tier from centralized access
+        const desiredTier = (inboxState.user_tier === 'admin') ? 'admin' : (hasIntellectAccess ? 'premium' : 'free');
+        if (inboxState.user_tier && inboxState.user_tier !== desiredTier && inboxState.user_tier !== 'admin') {
+            (async () => {
+                try {
+                    const upsertRes = await upsert_ii_user({ user_id: iiSession.user.id, user_tier: desiredTier });
+                    if (upsertRes?.result === 'success') {
+                        dispatch({ type: 'UPDATE_STATE', payload: { user_tier: desiredTier } });
+                    }
+                } catch (e) {
+                    console.warn('Failed to sync user_tier on access change', e);
+                }
+            })();
+        }
+    }, [useCentralized, hasIntellectAccess, iiSession, userLoaded, inboxState.user_tier, dispatch]);
 
     return (
         <IntellectInboxContext.Provider value={{ iiSession, loadingSession, userLoaded, inboxState, dispatch, checkAuthStatus }}>

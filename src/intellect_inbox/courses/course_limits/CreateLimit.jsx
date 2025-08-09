@@ -15,7 +15,7 @@ const CreateLimit = ({}) => {
     const bgColor = course_count < my_create_limit-1 ? colors.bg.green :  course_count < my_create_limit ? colors.bg.yellow : colors.bg.red;
     return (
         <Flex p={4} bg={bgColor} borderRadius="md" mb={4} width="100%" boxShadow="lg">
-            {(account_tier === 'free' || account_tier === 'standard') && 
+            {!(account_tier === 'premium' || account_tier === 'admin') && 
             <Text fontSize="md" textColor={colors.text.inverse}>
                 {free_message}
             </Text>}

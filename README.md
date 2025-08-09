@@ -49,6 +49,22 @@ You can toggle between Supabase Auth (legacy) and centralized Mumapps-Auth witho
 
 Note: The app still uses Supabase for data (profiles, lessons, storage). The centralized auth governs app access and session; data CRUD continues via the configured Supabase instance.
 
+### Premium Plan and Subscription Flow
+
+- Pricing: Single Premium plan at $1.99/month. No credits or pay-as-you-go purchases.
+- Upgrade/Manage: All subscription management is centralized at `MANAGE_ACCOUNT_URL` (computed from `REACT_APP_AUTH_URL`).
+- User tiers: Only `free` and `premium` (plus `admin`). Legacy `standard` is deprecated and mapped to `free` limits in `src/constants/limits.js`.
+- Front-end gating: Premium-only features check `user_tier === 'premium' || user_tier === 'admin'`.
+- UI links: Buttons and prompts should link to Manage Account rather than local `/manage` routes.
+
+Env variables involved:
+- `REACT_APP_AUTH_URL` (and optional `REACT_APP_AUTH_PORT`) → used to build `MANAGE_ACCOUNT_URL`.
+- `REACT_APP_USE_CENTRALIZED_AUTH=true` to enable centralized auth/session bridging.
+
+Legacy notes:
+- Legacy Stripe-based manage/checkout flows and one-time purchases remain archived in `src/intellect_inbox/pages/ManageAccount.jsx` but are not routed in `src/App.jsx`.
+- `src/intellect_inbox/pages/SubscriptionSuccess.jsx` remains for archival; success/management now happens via Mumapps-Auth.
+
 ### Centralized Auth → Supabase Session Bridge
 
 When `REACT_APP_USE_CENTRALIZED_AUTH=true`, the front-end now initializes the Supabase client session using the access and refresh tokens from the centralized auth session. This enables direct Supabase reads/writes (RLS) from the client to work under centralized auth.
